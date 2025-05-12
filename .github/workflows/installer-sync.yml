@@ -1,0 +1,18 @@
+name: installer-sync
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+  workflow_dispatch:
+
+jobs:
+  installer-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Check nanorc included every *nanorc files
+        run: |
+          ./tool/include-list-gen.sh
+          git diff --exit-code nanorc || exit 1
