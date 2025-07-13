@@ -1,0 +1,60 @@
+name: release
+
+on:
+  schedule:
+    # TODO: - cron: '0 0 1 */1 *' # @monthly
+    - cron: '0 */1 * * *' # @hourly
+  workflow_dispatch:
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+
+      - name: Select version
+        id: version
+        run: |
+          latest_tag="$(git describe --tags --abbrev=0 || echo '0.0.0')"
+          # TODO: new_tag="$(date +'%Y.%m').01"
+          new_tag="$(date +'%Y.%m.%d-%H')"
+
+          # note: this comparison only works with lexicographic dates
+          if [[ ! "${new_tag}" < "${latest_tag}" ]]; then
+            echo "Skipping release '${new_tag}'."
+            echo "Latest tag '${latest_tag}' already covers this month."
+          elif ! git diff --quiet "${latest_tag}"; then
+            echo "Skipping release '${new_tag}'."
+            echo "No changes since '${latest_tag}'."
+          else
+            echo "Proposing new release '${new_tag}'."
+            echo "Changes since '${latest_tag}':"
+            git diff --stat "${latest_tag}"
+
+            echo "tag='${new_tag}'" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create release
+        if: steps.version.outputs.tag != ''
+        uses: softprops/action-gh-release@v2
+        id: create_release
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: ${{ steps.version.outputs.tag }}
+          generate_release_notes: true
+          draft: true
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Request review
+        if: steps.create_release.outputs.id != ''
+        run: |
+          gh release edit ${{ steps.version.outputs.tag }} \
+            --repo ${{ github.repository }} \
+            --add-reviewer marmitar
+          # TODO: --add-reviewer davidhcefx,galenguyer
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
