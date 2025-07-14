@@ -52,15 +52,19 @@ You may put the files to a different directory, for example to `~/.nano/nanorc/`
 For readability, we use `$install_path` to represent the path of your choice (in *system wide* the path is always `/usr/share/nano-syntax-highlighting/`).
 
 For single user, run:
+https://github.com/marmitar/nano-syntax-highlighting/archive/refs/tags/2025.07.13-23.tar.gz
 
-- `git clone git@github.com:galenguyer/nano-syntax-highlighting.git $install_path`
-  - or with HTTPS: `git clone https://github.com/galenguyer/nano-syntax-highlighting.git $install_path`
-- and then switch to the suitable branch: `$install_path/tool/switch-branch.sh`
+```sh
+curl -L https://github.com/galenguyer/nano-syntax-highlighting/archive/master.tar.gz |\
+  tar -C  $install_path -xz --strip-components=2 nano-syntax-highlighting-master/src/
+```
 
 For system wide, run:
 
-- `sudo git clone https://github.com/galenguyer/nano-syntax-highlighting.git $install_path`
-- `$install_path/tool/switch-branch.sh`
+```sh
+curl -L https://github.com/galenguyer/nano-syntax-highlighting/archive/master.tar.gz |\
+  sudo tar -C  $install_path -xz --strip-components=2 nano-syntax-highlighting-master/src/
+```
 
 ## Configuration
 

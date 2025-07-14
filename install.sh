@@ -10,13 +10,9 @@ fi
 _fetch_sources() {
   br=$(_find_suitable_branch)
   mkdir -p ~/.nano/
-  cd ~/.nano/
 
-  wget -O "/tmp/nanorc.zip" "https://github.com/galenguyer/nano-syntax-highlighting/archive/${br}.zip"
-  unzip -o "/tmp/nanorc.zip"
-  mv "nano-syntax-highlighting-${br}"/* ./
-  rm -rf "nano-syntax-highlighting-${br}"
-  rm -f "/tmp/nanorc.zip"
+  curl -sSL "https://github.com/galenguyer/nano-syntax-highlighting/archive/${br}.tar.gz" \
+    | tar -C  ~/.nano/ -xz --strip-components=2 --wildcards '*/src/'
 }
 
 _update_nanorc() {
