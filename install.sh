@@ -7,26 +7,26 @@ if [ ! "$(command -v unzip)" ]; then
   exit 1
 fi
 
+INSTALL_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/nano-syntax-highlighting"
+
+_remove_dotnano() {
+  sed -i 's#"~/.nano/#d' "${NANORC_FILE}"
+  rm -rf ~/.nano
+}
+
 _fetch_sources() {
   br=$(_find_suitable_branch)
-  mkdir -p ~/.nano/
+  mkdir -p "$INSTALL_DIR"
 
   curl -sSL "https://github.com/galenguyer/nano-syntax-highlighting/archive/${br}.tar.gz" \
-    | tar -C  ~/.nano/ -xz --strip-components=2 --wildcards '*/src/'
+    | tar -C  "$INSTALL_DIR" -xz --strip-components=2 --wildcards '*/src/'
 }
 
 _update_nanorc() {
-  touch $NANORC_FILE
-  # add all includes from ~/.nano/nanorc if they're not already there
-  while read -r inc; do
-      if ! grep -q "$inc" "${NANORC_FILE}"; then
-          echo "$inc" >> "$NANORC_FILE"
-      fi
-  done < ~/.nano/nanorc
-}
-
-_update_nanorc_lite() {
-  sed -i '/include "\/usr\/share\/nano\/\*\.nanorc"/i include "~\/.nano\/*.nanorc"' "${NANORC_FILE}"
+  inc="include \"${INSTALL_DIR}/nanorc\""
+  if ! grep -qF "$inc" "${NANORC_FILE}"; then
+    echo "$inc" >> "$NANORC_FILE"
+  fi
 }
 
 _version_str_to_num() {
@@ -67,27 +67,31 @@ _find_suitable_branch() {
   echo "$target"
 }
 
+_find_nanorc() {
+  if [ -f ~/.nanorc ]; then
+    echo ~/.nanorc
+  else
+    nano_home="${XDG_CONFIG_HOME:-$HOME/.config}/nano"
+    mkdir -p "${nano_home}"
+    touch "${nano_home}/nanorc"
+    echo "${nano_home}/nanorc"
+  fi
+}
 
-NANORC_FILE=~/.nanorc
+
+NANORC_FILE="$(_find_nanorc)"
 
 case "$1" in
- -l|--lite)
-   UPDATE_LITE=1
- ;;
  --find_suitable_branch)
   _find_suitable_branch
   exit 0
  ;;
  -h|--help)
    echo "Install script for nanorc syntax highlights"
-   echo "Call with -l or --lite to update .nanorc with secondary precedence to existing .nanorc includes"
    exit 0
  ;;
 esac
 
+_remove_dotnano
 _fetch_sources
-if [ "$UPDATE_LITE" ]; then
-  _update_nanorc_lite
-else
-  _update_nanorc
-fi
+_update_nanorc

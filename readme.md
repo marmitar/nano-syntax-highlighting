@@ -26,7 +26,7 @@ If your machine doesn't have `curl` command, use this code:
 wget https://raw.githubusercontent.com/galenguyer/nano-syntax-highlighting/master/install.sh -O- | bash
 ```
 
-This automatically unpacks all the `.nanorc` files to `~/.nano`.
+This automatically unpacks all the `.nanorc` files to `~/.local/share/nano-syntax-highlighting`.
 
 #### Note
 
@@ -46,9 +46,9 @@ Feel free to add your official package manager.
 
 ### 3. Clone repo (copy the files)
 
-The files should be placed inside of the `~/.nano/` directory.
+The files should be placed inside of the `~/.local/share/nano-syntax-highlighting` directory.
 
-You may put the files to a different directory, for example to `~/.nano/nanorc/`.
+You may put the files to a different directory, for example to `~/.nano`.
 For readability, we use `$install_path` to represent the path of your choice (in *system wide* the path is always `/usr/share/nano-syntax-highlighting/`).
 
 For single user, run:
@@ -69,7 +69,7 @@ curl -L https://github.com/galenguyer/nano-syntax-highlighting/archive/master.ta
 ## Configuration
 
 After installation, you need to inform `nano` to used the new highlight files.
-The configuration file is located at `~/.nanorc`, for users, and at `/etc/nanorc`, for system wide.
+The configuration file is located at `~/.config/nano/nanorc` or `~/.nanorc`, for users, and at `/etc/nanorc`, for system wide.
 If this file doesn't exist, create a new one.
 
 Again there are three ways:
@@ -78,14 +78,14 @@ Again there are three ways:
 
 Append the content of the folder in one line, with wildcard:
 
-`echo "include $install_path/*.nanorc" >> ~/.nanorc` or
+`echo "include $install_path/*.nanorc" >> ~/.config/nano/nanorc` or
 `echo "include $install_path/*.nanorc" >> /etc/nanorc`
 
 ### 2. Include/append our `nanorc` file
 
 Simply run:
 
-`cat $install_path/nanorc >> ~/.nanorc` or
+`cat $install_path/nanorc >> ~/.config/nano/nanorc` or
 `cat $install_path/nanorc >> /etc/nanorc`
 
 ### 3. One by one
@@ -94,7 +94,7 @@ Add your preferable languages one by one into the file. For example:
 
 ```
 ## C/C++
-include "~/.nano/c.nanorc"
+include "~/.local/share/nano-syntax-highlighting/c.nanorc"
 ```
 
 ## Tricks & Tweaks
