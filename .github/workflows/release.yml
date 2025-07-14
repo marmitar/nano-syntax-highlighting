@@ -23,6 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       release_tag: ${{ steps.verify.outputs.release_tag }}
+      release_commit: ${{ steps.verify.outputs.release_commit }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -43,13 +44,14 @@ jobs:
           latest_tag_fmt="[\`${latest_tag}\`](${REPOSITORY_URL}/releases/tag/${latest_tag})"
           # TODO: release_tag="$(date +'%Y.%m.%d')"
           release_tag="${INPUT_RELEASE_TAG:-$(date +'%Y.%m.%d-%H')}"
+          release_commit="$(git log --format="%H" -n 1)"
 
           # note: this comparison only works with lexicographic dates
           if [[ ! "${release_tag}" > "${latest_tag}" ]]; then
             echo "## Skipping release \`${release_tag}\`" >> "$GITHUB_STEP_SUMMARY"
             echo "Latest tag ${latest_tag_fmt} already covers this date." >> "$GITHUB_STEP_SUMMARY"
             exit 0
-          elif git diff --quiet "${latest_tag}"; then
+          elif [[ "$(git log --format="%H" -n 1 "${latest_tag}")" = "${release_commit}" ]]; then
             echo "## Skipping release \`${release_tag}\`" >> "$GITHUB_STEP_SUMMARY"
             echo "No changes since ${latest_tag_fmt}." >> "$GITHUB_STEP_SUMMARY"
             exit 0
@@ -57,19 +59,21 @@ jobs:
 
           {
             echo "## Proposing new release \`${release_tag}\`"
+            echo "Commit: [${release_commit}](${REPOSITORY_URL}/commit/${release_commit})"
 
             echo "### Changes since ${latest_tag_fmt}"
             echo '```log'
-            git diff --histogram --stat "${latest_tag}..HEAD"
+            git diff --histogram --stat "${latest_tag}..${release_commit}"
             echo '```'
 
             echo '### Git log'
             echo '```log'
-            git log --no-merges "${latest_tag}..HEAD"
+            git log --no-merges "${latest_tag}..${release_commit}"
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
 
           echo "release_tag=${release_tag}" >> "$GITHUB_OUTPUT"
+          echo "release_commit=${release_commit}" >> "$GITHUB_OUTPUT"
 
   release:
     runs-on: ubuntu-latest
@@ -84,6 +88,7 @@ jobs:
         with:
           tag_name: ${{ needs.verify.outputs.release_tag }}
           name: ${{ needs.verify.outputs.release_tag }}
+          target_commitish: ${{ needs.verify.outputs.release_commit }}
           generate_release_notes: true
           make_latest: true
         env:
