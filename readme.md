@@ -2,6 +2,7 @@
 
 [![shellcheck](https://github.com/galenguyer/nano-syntax-highlighting/actions/workflows/shellcheck.yml/badge.svg?branch=master)](https://github.com/galenguyer/nano-syntax-highlighting/actions/workflows/shellcheck.yml)
 [![installer-sync](https://github.com/galenguyer/nano-syntax-highlighting/actions/workflows/installer-sync.yml/badge.svg?branch=master)](https://github.com/galenguyer/nano-syntax-highlighting/actions/workflows/installer-sync.yml)
+[![release](https://img.shields.io/github/v/release/marmitar/nano-syntax-highlighting?logo=github&logoColor=%23959DA5&labelColor=%23444D56)](https://github.com/marmitar/nano-syntax-highlighting/releases/latest)
 
 This repository holds ``{lang}.nanorc`` files that have improved definitions of syntax highlighting for various languages.
 
