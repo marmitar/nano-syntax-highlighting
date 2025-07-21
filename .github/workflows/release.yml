@@ -2,8 +2,7 @@ name: release
 
 on:
   schedule:
-    # TODO: - cron: '0 0 1 */1 *' # @monthly
-    - cron: '0 */1 * * *' # @hourly
+    - cron: '0 0 1 */1 *' # @monthly
   workflow_dispatch:
     inputs:
       release_tag:
